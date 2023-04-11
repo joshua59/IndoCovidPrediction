@@ -157,6 +157,7 @@
         [449.0], [304.00], [357.00], [436.00], [426.00], [329.00], [511.00],
         [580.00], [556.00], [465.00], [486.00], [403.00], [329.00], [616.00]
     ]];
+    let parsedData = null;
 
     async function prepareModelAndPredict(){
         const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
@@ -183,7 +184,31 @@
         return prediction;
     }
 
+    function getData() {
+        /* console.log("Getting data...")
+        Papa.parse("https://covid.ourworldindata.org/data/owid-covid-data.csv", {
+            download: true,
+            header: true,
+            complete: function(results) {
+                console.log("Data is gotten");
+                console.log(results.data);
+                return results.data;
+            }
+        });
+        console.log("Getting data done!"); */
+        $.get('https://covid.ourworldindata.org/data/owid-covid-data.csv', function(data) {
+            parsedData = Papa.parse(data, { header: true });
+            console.log(parsedData);
+        });
+    }
+
+    function processData() {
+        getData();
+        console.log(parsedData['data'][0]['new_cases']);
+    }
+
     prepareModelAndPredict();
+    processData();
 
 </script>
 </html>

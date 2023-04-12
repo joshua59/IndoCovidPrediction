@@ -158,6 +158,7 @@
         [580.00], [556.00], [465.00], [486.00], [403.00], [329.00], [616.00]
     ]];
     let parsedData = null;
+    let parsedDataIndo = [];
 
     async function prepareModelAndPredict(){
         const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
@@ -184,7 +185,7 @@
         return prediction;
     }
 
-    function getData() {
+    function getDataAndProcessData() {
         /* console.log("Getting data...")
         Papa.parse("https://covid.ourworldindata.org/data/owid-covid-data.csv", {
             download: true,
@@ -198,17 +199,45 @@
         console.log("Getting data done!"); */
         $.get('https://covid.ourworldindata.org/data/owid-covid-data.csv', function(data) {
             parsedData = Papa.parse(data, { header: true });
-            console.log(parsedData);
+            // console.log(parsedData);
+
+            // filter data for Indonesia
+            for (let i = 0; i < parsedData['data'].length; i++){
+                if(parsedData['data'][i]['location'] === 'Indonesia'){
+                    // console.log(parsedData['data'][i]);
+                    parsedDataIndo.push({
+                        'date': parsedData['data'][i]['date'],
+                        'new_cases': parsedData['data'][i]['new_cases'],
+                    });
+                }
+            }
+
+            console.log(parsedDataIndo);
+
+            // transform parsedDataIndo to JSON
+            let parsedDataIndoJSON = JSON.stringify(parsedDataIndo);
+            console.log(parsedDataIndoJSON);
+
+            // send parsedDataIndoJSON to controller
+            $.ajax({
+                url: "{{ route('add-data') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    data: parsedDataIndoJSON
+                },
+                success: function(response) {
+                    console.log(response);
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+            });
         });
     }
 
-    function processData() {
-        getData();
-        console.log(parsedData['data'][0]['new_cases']);
-    }
-
     prepareModelAndPredict();
-    processData();
+    getDataAndProcessData();
 
 </script>
 </html>

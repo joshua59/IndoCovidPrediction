@@ -18,3 +18,4 @@ Route::get('/', function(){
     return redirect()->route('home');
 });
 Route::get('home',[HomeController::class, 'index'])->name('home');
+Route::post('add-data',[HomeController::class, 'addData'])->name('add-data');

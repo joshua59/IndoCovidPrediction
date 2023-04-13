@@ -45,6 +45,11 @@
   </head>
 
 <body class="hold-transition skin-blue-light sidebar-mini">
+{{--    @foreach ($data as $key => $value)--}}
+{{--        {{ $data[$key]['date'] }}--}}
+{{--        {{ $data[$key]['new_cases'] }}--}}
+{{--    @endforeach--}}
+
 
     <!-- Main content -->
     <div class="container">
@@ -146,7 +151,6 @@
 	<!-- demo purposes -->
     <script src="{{asset('assets/js/demo.js')}}"></script>
 
-
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -202,9 +206,14 @@
             // console.log(parsedData);
 
             // filter data for Indonesia
-            for (let i = 0; i < parsedData['data'].length; i++){
+            for (let i = 0; i < parsedData['data'].length - 1; i++){
                 if(parsedData['data'][i]['location'] === 'Indonesia'){
                     // console.log(parsedData['data'][i]);
+
+                    if(parsedData['data'][i]['new_cases'] === ''){
+                        parsedData['data'][i]['new_cases'] = parsedData['data'][i-1]['new_cases'];
+                    }
+
                     parsedDataIndo.push({
                         'date': parsedData['data'][i]['date'],
                         'new_cases': parsedData['data'][i]['new_cases'],
@@ -237,7 +246,11 @@
     }
 
     prepareModelAndPredict();
+
+    let startTime = performance.now()
     getDataAndProcessData();
+    let endTime = performance.now()
+    console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 
 </script>
 </html>

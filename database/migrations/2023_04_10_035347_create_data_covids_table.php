@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('data_covids', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
+            $table->date('date')->unique();
             $table->integer('new_cases');
         });
     }

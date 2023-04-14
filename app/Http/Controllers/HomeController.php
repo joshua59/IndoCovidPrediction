@@ -53,6 +53,31 @@ class HomeController extends Controller
         }
     }
 
+    public function getData()
+    {
+        $start = microtime(true);
+
+        // Get the data from the database
+        $data = DataCovid::all();
+
+        $time_elapsed_secs = microtime(true) - $start;
+
+        // Return the response to the user
+        if ($data) {
+            return response()->json([
+                'alert' => 'success',
+                'message' => 'Data berhasil ditambahkan.',
+                'data' => $data,
+                'time' => $time_elapsed_secs,
+            ]);
+        } else {
+            return response()->json([
+                'alert' => 'error',
+                'message' => 'Data gagal ditambahkan.',
+            ]);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */

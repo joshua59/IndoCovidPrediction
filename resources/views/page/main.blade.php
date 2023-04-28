@@ -75,7 +75,9 @@
             </div>
             <!-- /.box -->
         </div>
-          <button id="btnGetData" onclick="getDataFromDatabase()">Get Data</button>
+          <a href="{{ route('train') }}" id="train" class="btn btn-primary">Train</a>
+        <p>Mantap kali {{ $updateNeeded }}</p>
+        <p>anjay</p>
     </div>
     <!-- /.row -->
 
@@ -168,25 +170,89 @@
 <script>
     let model = null;
     let x_for_pred = [[
-        [449.0], [304.00], [357.00], [436.00], [426.00], [329.00], [511.00],
+        [450.0], [304.00], [357.00], [436.00], [426.00], [329.00], [511.00],
         [580.00], [556.00], [465.00], [486.00], [403.00], [329.00], [616.00]
     ]];
     let parsedData = null;
     let parsedDataIndo = [];
 
-    async function prepareModelAndPredict() {
-        const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
-        console.log(myModel.summary());
-        // return model;
-        model = myModel;
+    async function doEverything() {
+        let updateNeded = {{$updateNeeded}};
 
-        console.log("Predicting...");
-        const tensor = tf.tensor3d(x_for_pred, [1, 14, 1]);
-        const prediction = await myModel.predict(tensor).data();
-        console.log(prediction);
-        console.log("Prediction done!");
+        if (updateNeded) {
+            const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
+            console.log(myModel.summary());
+            // return model;
+            model = myModel;
 
-        return prediction;
+            console.log("Predicting...");
+            const tensor = tf.tensor3d(x_for_pred, [1, 14, 1]);
+            const prediction = await myModel.predict(tensor).data();
+            console.log(prediction);
+            console.log("Prediction done!");
+
+            console.log("Downloading data...");
+            $.get('https://covid.ourworldindata.org/data/owid-covid-data.csv', function (data) {
+                parsedData = Papa.parse(data, {header: true});
+                // console.log(parsedData);
+
+                // filter data for Indonesia
+                for (let i = 0; i < parsedData['data'].length - 1; i++) {
+                    if (parsedData['data'][i]['location'] === 'Indonesia') {
+                        // console.log(parsedData['data'][i]);
+
+                        if (parsedData['data'][i]['new_cases'] === '') {
+                            parsedData['data'][i]['new_cases'] = parsedData['data'][i - 1]['new_cases'];
+                        }
+
+                        parsedDataIndo.push({
+                            'date': parsedData['data'][i]['date'],
+                            'new_cases': parsedData['data'][i]['new_cases'],
+                        });
+                    }
+                }
+
+                console.log(parsedDataIndo);
+
+                // transform parsedDataIndo to JSON
+                let parsedDataIndoJSON = JSON.stringify(parsedDataIndo);
+                console.log(parsedDataIndoJSON);
+                console.log("anj");
+
+                // send parsedDataIndoJSON to controller
+                $.ajax({
+                    url: "{{ route('add-data') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        data: parsedDataIndoJSON
+                    },
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+
+                // add last update data to data_update_history table
+                $.ajax({
+                    url: "{{ route('new-data') }}",
+                    type: "GET",
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+            });
+
+            return prediction;
+        }
+        else{
+            console.log("Data is up to date!");
+        }
     }
 
     async function predict() {
@@ -203,7 +269,7 @@
         /* console.log("Getting data...")
         Papa.parse("https://covid.ourworldindata.org/data/owid-covid-data.csv", {
             download: true,
-            header: true,
+            header: true,w
             complete: function(results) {
                 console.log("Data is gotten");
                 console.log(results.data);
@@ -231,7 +297,7 @@
                 }
             }
 
-            console.log(parsedDataIndo);
+            // console.log(parsedDataIndo);
 
             // transform parsedDataIndo to JSON
             let parsedDataIndoJSON = JSON.stringify(parsedDataIndo);
@@ -245,6 +311,18 @@
                     _token: "{{ csrf_token() }}",
                     data: parsedDataIndoJSON
                 },
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+
+            // add last update data to data_update_history table
+            $.ajax({
+                url: "{{ route('new-data') }}",
+                type: "GET",
                 success: function (response) {
                     console.log(response);
                 },
@@ -270,12 +348,8 @@
         console.log("Getting data from database done!");
     }
 
-    prepareModelAndPredict();
-
-    let startTime = performance.now()
+    doEverything();
     getDataAndProcessData();
-    let endTime = performance.now()
-    console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
 
 </script>
 </html>

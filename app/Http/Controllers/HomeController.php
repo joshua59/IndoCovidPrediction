@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataCovid;
+use App\Models\DataUpdateHistory;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -66,16 +67,21 @@ class HomeController extends Controller
         if ($data) {
             return response()->json([
                 'alert' => 'success',
-                'message' => 'Data berhasil ditambahkan.',
+                'message' => 'Data is successfully retrieved.',
                 'data' => $data,
                 'time' => $time_elapsed_secs,
             ]);
         } else {
             return response()->json([
                 'alert' => 'error',
-                'message' => 'Data gagal ditambahkan.',
+                'message' => 'Failed to retrieve data.',
             ]);
         }
+    }
+
+    public function train()
+    {
+        return view('page.train');
     }
 
     /**
@@ -83,16 +89,30 @@ class HomeController extends Controller
      */
     public function index()
     {
-        /*
-        $data = array(
-            array("date" => "2019-01-01", "new_cases" => 10),
-            array("date" => "2019-01-02", "new_cases" => 20),
-            array("date" => "2019-01-03", "new_cases" => 30),
-        );
-        */
-        return view('page.main',
-            // compact('data')
-        );
+        $dataUpdateHistory = DataUpdateHistory::orderBy('created_at', 'desc')->first();
+
+        $updateNeeded = "false";
+        // check if it's already 7 days since the last update
+        if ($dataUpdateHistory) {
+            $lastUpdate = strtotime($dataUpdateHistory->created_at);
+            $now = strtotime(date('Y-m-d H:i:s'));
+            $diff = $now - $lastUpdate;
+            $diff = floor($diff / (60 * 60 * 24));
+
+            if ($diff >= 7) {
+                $updateNeeded = "true";
+            }
+        }
+
+        return view('page.main', compact('updateNeeded'));
+    }
+
+    public function addDataUpdateHistory()
+    {
+        $dataUpdateHistory = new DataUpdateHistory();
+        $dataUpdateHistory->save();
+
+        return "New data update history is added.";
     }
 
     /**

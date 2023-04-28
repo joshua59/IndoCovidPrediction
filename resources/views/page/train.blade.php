@@ -177,33 +177,40 @@
 
         trainingData.push(temp);
 
-        temp = [];
-
         // console.log(trainingData);
         // console.log(x_for_pred); // just to check if it has the same shape as the training data
 
         // for (let i = 0; i < trainingData.length; i++){
         //     for (let j = trainingData[i].length - 20; j < trainingData[i].length; j++){
+        //         // console.log(trainingData[i][j]);
         //         for (let k = 0; k < trainingData[i][j].length; k++){
-        //             console.log(trainingData[i][j][k]);
         //             // let row = trainingData[i][j][k];
         //             // temp.push([row]);
         //         }
         //     }
         // }
 
-        for (let i = trainingData[0].length - 14; i < trainingData[0].length; i++) {
-            let row = trainingData[0][i][0];
-            temp.push([row]);
+        console.log("Predicting...")
+        for (let count_prediction = 1; count_prediction <= 120; count_prediction++){
+            temp = [];
+            predictData = [];
+
+            for (let i = trainingData[0].length - 14; i < trainingData[0].length; i++) {
+                let row = trainingData[0][i][0];
+                temp.push([row]);
+            }
+
+            predictData.push(temp);
+            // console.log(predictData);
+
+            const tensor = tf.tensor3d(predictData, [1, 14, 1]);
+            const prediction = await myModel.predict(tensor).data();
+            console.log("Prediction no. " + count_prediction + " : " + prediction);
+
+            // push prediction to trainingData
+            trainingData[0].push([prediction[0]]);
         }
-
-        predictData.push(temp);
-
-        console.log("Predicting...");
-        const tensor = tf.tensor3d(predictData, [1, 14, 1]);
-        const prediction = await myModel.predict(tensor).data();
-        console.log(prediction);
-        console.log("Prediction done!");
+        console.log("Predicting done!");
     }
 
     train();

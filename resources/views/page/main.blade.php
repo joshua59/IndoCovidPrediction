@@ -197,7 +197,7 @@
                 // console.log(parsedData);
 
                 // filter data for Indonesia
-                for (let i = 0; i < parsedData['data'].length - 1; i++) {
+                for (let i = 0; i < parsedData['data'].length; i++) {
                     if (parsedData['data'][i]['location'] === 'Indonesia') {
                         // console.log(parsedData['data'][i]);
 
@@ -211,6 +211,9 @@
                         });
                     }
                 }
+
+                // delete last data
+                parsedDataIndo.pop();
 
                 console.log(parsedDataIndo);
 
@@ -349,7 +352,7 @@
     }
 
     doEverything();
-    getDataAndProcessData();
+    // getDataAndProcessData();
 
 </script>
 </html>

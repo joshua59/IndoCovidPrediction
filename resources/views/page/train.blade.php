@@ -128,6 +128,7 @@
     ];
 
     let predictData = [];
+    let predictionsToBeStored = [];
 
     let x_for_pred = [[
         [450.0], [304.00], [357.00], [436.00], [426.00], [329.00], [511.00],
@@ -209,8 +210,27 @@
 
             // push prediction to trainingData
             trainingData[0].push([prediction[0]]);
+
+            // push prediction to predictionsToBeStored
+            predictionsToBeStored.push(prediction[0]);
         }
         console.log("Predicting done!");
+
+        console.log("Storing predictions to database...");
+        $.ajax({
+            url: "{{ route('new-predictions') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                predictions: predictionsToBeStored
+            },
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        });
     }
 
     train();

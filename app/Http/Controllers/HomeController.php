@@ -58,8 +58,8 @@ class HomeController extends Controller
     {
         $start = microtime(true);
 
-        // Get the data from the database
-        $data = DataCovid::all();
+        // Get the data from the database that is_predicted = false
+        $data = DataCovid::where('is_predicted', false)->get();
 
         $time_elapsed_secs = microtime(true) - $start;
 
@@ -113,6 +113,34 @@ class HomeController extends Controller
         $dataUpdateHistory->save();
 
         return "New data update history is added.";
+    }
+
+    public function addPredictions(Request $request)
+    {
+        $predictions = $request->predictions;
+
+        $predictionsExist = DataCovid::where('is_predicted', true)->get();
+        if ($predictionsExist) {
+            DataCovid::where('is_predicted', true)->delete();
+        }
+
+        $lastDate = DataCovid::orderBy('date', 'desc')->first()->date;
+        $count = 0;
+        foreach ($predictions as $prediction) {
+            $lastDate = date('Y-m-d', strtotime($lastDate . ' + 1 days'));
+            $dataCovid = new DataCovid();
+            $dataCovid->date = $lastDate;
+            $dataCovid->new_cases = $prediction;
+            $dataCovid->is_predicted = true;
+            $dataCovid->save();
+            $count++;
+        }
+
+        if ($count == count($predictions)) {
+            return "New predictions are added.";
+        } else {
+            return "Failed to add new predictions.";
+        }
     }
 
     /**

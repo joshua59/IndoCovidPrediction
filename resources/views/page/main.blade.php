@@ -220,7 +220,6 @@
                 // transform parsedDataIndo to JSON
                 let parsedDataIndoJSON = JSON.stringify(parsedDataIndo);
                 console.log(parsedDataIndoJSON);
-                console.log("anj");
 
                 // send parsedDataIndoJSON to controller
                 $.ajax({

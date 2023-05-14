@@ -123,9 +123,7 @@
 <script>
     let model = null;
     let data = null;
-    let trainingData = [
-
-    ];
+    let trainingData = [];
 
     let predictData = [];
     let predictionsToBeStored = [];
@@ -135,14 +133,105 @@
         [580.00], [556.00], [465.00], [486.00], [403.00], [329.00], [616.00]
     ]];
 
-    async function train(){
-        console.log("Loading model...");
-        const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
-        console.log(myModel.summary());
-        // return model;
-        model = myModel;
-        console.log("Loading model done!");
+    {{--async function predict() {--}}
+    {{--    console.log("Loading model...");--}}
+    {{--    const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');--}}
+    {{--    console.log(myModel.summary());--}}
+    {{--    // return model;--}}
+    {{--    model = myModel;--}}
+    {{--    console.log("Loading model done!");--}}
 
+    {{--    console.log("Getting data from database")--}}
+    {{--    $.ajax({--}}
+    {{--        url: "{{ route('get-data') }}",--}}
+    {{--        type: "GET",--}}
+    {{--        success: function (response) {--}}
+    {{--            // console.log(response);--}}
+    {{--            data = response.data;--}}
+    {{--        },--}}
+    {{--        error: function (response) {--}}
+    {{--            console.log(response);--}}
+    {{--        }--}}
+    {{--    });--}}
+    {{--    console.log("Getting data from database done!");--}}
+
+    {{--    // console.log("Training model...");--}}
+    {{--    // model.compile({--}}
+    {{--    //     optimizer: tf.train.adam(0.0001),--}}
+    {{--    //     loss: tf.losses.huberLoss(),--}}
+    {{--    //     // metrics: ['']--}}
+    {{--    // });--}}
+
+    {{--    // wait for data to be loaded from database--}}
+    {{--    if (data == null) {--}}
+    {{--        setTimeout(predict, 1000);--}}
+    {{--        return;--}}
+    {{--    }--}}
+
+    {{--    let temp = [];--}}
+    {{--    for (let i = 0; i < data.length; i++) {--}}
+    {{--        let row = data[i];--}}
+    {{--        temp.push([row['new_cases']]);--}}
+    {{--    }--}}
+
+    {{--    trainingData.push(temp);--}}
+
+    {{--    // console.log(trainingData);--}}
+    {{--    // console.log(x_for_pred); // just to check if it has the same shape as the training data--}}
+
+    {{--    // for (let i = 0; i < trainingData.length; i++){--}}
+    {{--    //     for (let j = trainingData[i].length - 20; j < trainingData[i].length; j++){--}}
+    {{--    //         // console.log(trainingData[i][j]);--}}
+    {{--    //         for (let k = 0; k < trainingData[i][j].length; k++){--}}
+    {{--    //             // let row = trainingData[i][j][k];--}}
+    {{--    //             // temp.push([row]);--}}
+    {{--    //         }--}}
+    {{--    //     }--}}
+    {{--    // }--}}
+
+    {{--    console.log("Predicting...")--}}
+    {{--    for (let count_prediction = 1; count_prediction <= 120; count_prediction++) {--}}
+    {{--        temp = [];--}}
+    {{--        predictData = [];--}}
+
+    {{--        for (let i = trainingData[0].length - 14; i < trainingData[0].length; i++) {--}}
+    {{--            let row = trainingData[0][i][0];--}}
+    {{--            temp.push([row]);--}}
+    {{--        }--}}
+
+    {{--        predictData.push(temp);--}}
+    {{--        // console.log(predictData);--}}
+
+    {{--        const tensor = tf.tensor3d(predictData, [1, 14, 1]);--}}
+    {{--        const prediction = await myModel.predict(tensor).data();--}}
+    {{--        console.log("Prediction no. " + count_prediction + " : " + prediction);--}}
+
+    {{--        // push prediction to trainingData--}}
+    {{--        trainingData[0].push([prediction[0]]);--}}
+
+    {{--        // push prediction to predictionsToBeStored--}}
+    {{--        predictionsToBeStored.push(prediction[0]);--}}
+    {{--    }--}}
+    {{--    console.log("Predicting done!");--}}
+
+    {{--    console.log("Storing predictions to database...");--}}
+    {{--    $.ajax({--}}
+    {{--        url: "{{ route('new-predictions') }}",--}}
+    {{--        type: "POST",--}}
+    {{--        data: {--}}
+    {{--            _token: "{{ csrf_token() }}",--}}
+    {{--            predictions: predictionsToBeStored--}}
+    {{--        },--}}
+    {{--        success: function (response) {--}}
+    {{--            console.log(response);--}}
+    {{--        },--}}
+    {{--        error: function (response) {--}}
+    {{--            console.log(response);--}}
+    {{--        }--}}
+    {{--    });--}}
+    {{--}--}}
+
+    async function train() {
         console.log("Getting data from database")
         $.ajax({
             url: "{{ route('get-data') }}",
@@ -155,84 +244,78 @@
                 console.log(response);
             }
         });
-        console.log("Getting data from database done!");
-
-        // console.log("Training model...");
-        // model.compile({
-        //     optimizer: tf.train.adam(0.0001),
-        //     loss: tf.losses.huberLoss(),
-        //     // metrics: ['']
-        // });
 
         // wait for data to be loaded from database
-        if (data == null){
+        if (data == null) {
             setTimeout(train, 1000);
             return;
         }
+        console.log("Getting data from database done!");
 
+        console.log("Getting only new cases from data")
         let temp = [];
-        for (let i = 0; i < data.length; i++){
+        for (let i = 0; i < data.length; i++) {
             let row = data[i];
             temp.push([row['new_cases']]);
         }
 
         trainingData.push(temp);
+        console.log("Getting only new cases from data done!");
 
-        // console.log(trainingData);
-        // console.log(x_for_pred); // just to check if it has the same shape as the training data
-
-        // for (let i = 0; i < trainingData.length; i++){
-        //     for (let j = trainingData[i].length - 20; j < trainingData[i].length; j++){
-        //         // console.log(trainingData[i][j]);
-        //         for (let k = 0; k < trainingData[i][j].length; k++){
-        //             // let row = trainingData[i][j][k];
-        //             // temp.push([row]);
-        //         }
-        //     }
-        // }
-
-        console.log("Predicting...")
-        for (let count_prediction = 1; count_prediction <= 120; count_prediction++){
-            temp = [];
-            predictData = [];
-
-            for (let i = trainingData[0].length - 14; i < trainingData[0].length; i++) {
-                let row = trainingData[0][i][0];
-                temp.push([row]);
+        console.log("Windowing training data")
+        let count = 0;
+        // trainingData windowing
+        let X_windowed = [];
+        let y = [];
+        for (let i = 0; i < trainingData.length; i++) {
+            for (let j = 0; j < trainingData[i].length - 14; j++) {
+                let temp = [];
+                for (let k = j; k < j + 14; k++) {
+                    let row = trainingData[i][k][0];
+                    temp.push([row]);
+                }
+                X_windowed.push(temp);
+                y.push(trainingData[i][j + 14][0]);
+                count++;
             }
-
-            predictData.push(temp);
-            // console.log(predictData);
-
-            const tensor = tf.tensor3d(predictData, [1, 14, 1]);
-            const prediction = await myModel.predict(tensor).data();
-            console.log("Prediction no. " + count_prediction + " : " + prediction);
-
-            // push prediction to trainingData
-            trainingData[0].push([prediction[0]]);
-
-            // push prediction to predictionsToBeStored
-            predictionsToBeStored.push(prediction[0]);
         }
-        console.log("Predicting done!");
+        console.log(count);
+        console.log(X_windowed);
+        console.log(y);
+        console.log("Windowing training data done!");
 
-        console.log("Storing predictions to database...");
-        $.ajax({
-            url: "{{ route('new-predictions') }}",
-            type: "POST",
-            data: {
-                _token: "{{ csrf_token() }}",
-                predictions: predictionsToBeStored
-            },
-            success: function (response) {
-                console.log(response);
-            },
-            error: function (response) {
-                console.log(response);
+        // Loading model architecture
+        console.log("Loading model...");
+        const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
+        console.log(myModel.summary());
+        // return model;
+        model = myModel;
+        console.log("Loading model done!");
+
+        console.log("Compiling model...");
+        // compile model
+        model.compile({
+            loss: tf.losses.huberLoss,
+            optimizer: tf.train.adam(0.0001),
+        });
+        console.log("Compiling model done!");
+
+        // train model
+        console.log("Training model...");
+        const history = await model.fit(tf.tensor3d(X_windowed, [X_windowed.length, 14, 1]), tf.tensor1d(y), {
+            epochs: 1,
+            callbacks: {
+                onEpochEnd: async (epoch, logs) => {
+                    console.log("Epoch: " + epoch + " Loss: " + logs.loss);
+                }
             }
         });
+        console.log("Training model done!");
+
+        console.log(history);
     }
 
+    // predict();
     train();
 </script>
 </html>

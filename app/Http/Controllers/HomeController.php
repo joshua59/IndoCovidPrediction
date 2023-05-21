@@ -104,7 +104,9 @@ class HomeController extends Controller
             }
         }
 
-        return view('page.main', compact('updateNeeded'));
+        $data = DataCovid::all();
+
+        return view('page.main', compact('updateNeeded', 'data'));
     }
 
     public function addDataUpdateHistory()

@@ -187,6 +187,7 @@ function generateChartData() {
     a4 += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
     b4 += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
 
+
     chartData1.push( {
       "date": newDate,
       "value": a1,

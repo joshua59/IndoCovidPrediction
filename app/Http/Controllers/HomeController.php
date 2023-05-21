@@ -79,6 +79,7 @@ class HomeController extends Controller
         }
     }
 
+
     public function train()
     {
         return view('page.train');
@@ -114,7 +115,6 @@ class HomeController extends Controller
 
         return "New data update history is added.";
     }
-
     /**
      * Show the form for creating a new resource.
      */

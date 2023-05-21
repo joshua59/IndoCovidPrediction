@@ -48,6 +48,12 @@
 
     <!-- skins -->
     <link href="{{asset('assets/css/skins/_all-skins.css')}}" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://cdn.amcharts.com/lib/3/amcharts.css" type="text/css">
+
+    <!-- Tautan script AmCharts -->
+    <script src="https://cdn.amcharts.com/lib/3/amcharts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/3/serial.js"></script>
 </head>
 
 <body class="hold-transition skin-blue-light sidebar-mini">
@@ -67,8 +73,8 @@
                     <h2 class="box-title">COVID-19 Prediction Graph</h2>
                 </div>
                 <div class="box-body">
-                    <div class="chart">
-                        <div id="lion_amcharts_4" style="height: 500px;"></div>
+                    <div id="chartdiv">
+
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -97,7 +103,6 @@
     </div>
     <!--end::Container-->
 </div>
-
 
 <!-- jQuery 3 -->
 <script src="{{asset('assets/vendor_components/jquery/dist/jquery.js')}}"></script>
@@ -349,7 +354,84 @@
     }
 
     doEverything();
-    getDataAndProcessData();
+    // getDataAndProcessData();
 
+</script>
+
+<!-- amchart line graph -->
+<script>
+    am4core.ready(function () {
+
+        // Themes begin
+        am4core.useTheme(am4themes_animated);
+        // Themes end
+
+        // Create chart instance
+        let chart = am4core.create("chartdiv", am4charts.XYChart);
+
+        // Add data
+        chart.data = [
+            @foreach($data as $d)
+            {
+                "date": "{{$d->date}}",
+                "new_cases": "{{$d->new_cases}}"
+            },
+            @endforeach
+        ];
+
+        // Set input format for the dates
+        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+
+        // Create axes
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+        // Create series
+        let series = chart.series.push(new am4charts.LineSeries());
+        series.dataFields.valueY = "new_cases";
+        series.dataFields.dateX = "date";
+        series.tooltipText = "{new_cases}";
+        series.strokeWidth = 2;
+        series.minBulletDistance = 15;
+
+        // Drop-shaped tooltips
+        series.tooltip.background.cornerRadius = 20;
+        series.tooltip.background.strokeOpacity = 0;
+        series.tooltip.pointerOrientation = "vertical";
+        series.tooltip.label.minWidth = 40;
+        series.tooltip.label.minHeight = 40;
+        series.tooltip.label.textAlign = "middle";
+        series.tooltip.label.textValign = "middle";
+
+        // Make bullets grow on hover
+        let bullet = series.bullets.push(new am4charts.CircleBullet());
+        bullet.circle.strokeWidth = 2;
+        bullet.circle.radius = 4;
+        bullet.circle.fill = am4core.color("#fff");
+
+        let bullethover = bullet.states.create("hover");
+        bullethover.properties.scale = 1.3;
+
+        // Make a panning cursor
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.behavior = "panXY";
+        chart.cursor.xAxis = dateAxis;
+        chart.cursor.snapToSeries = series;
+
+        // Create vertical scrollbar and place it before the value axis
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.parent = chart.leftAxesContainer;
+        chart.scrollbarY.toBack();
+
+        // Create a horizontal scrollbar with previe and place it underneath the date axis
+        chart.scrollbar
+            = new am4charts.XYChartScrollbar();
+        chart.scrollbar.series.push(series);
+        chart.scrollbar.parent = chart.bottomAxesContainer;
+
+        dateAxis.start = 0.79;
+        dateAxis.keepSelection = true;
+
+    }); // end am4core.ready()
 </script>
 </html>

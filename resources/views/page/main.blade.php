@@ -62,6 +62,7 @@
     <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
     <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
     <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/plugins/rangeSelector.js"></script>
 
 </head>
 
@@ -88,6 +89,7 @@
                     <div id="chartdiv">
 
                     </div>
+
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -253,7 +255,7 @@
 
         // Add legend
         chart.legend = new am4charts.Legend();
-        chart.legend.position = "right";
+        chart.legend.position = "top";
         chart.legend.scrollable = true;
 
         var hoverState = series.columns.template.states.create("hover");
@@ -293,12 +295,6 @@
                 series.bulletsContainer.setState("default");
             });
         }
-
-        //add period selector
-        var selector = new am4plugins_rangeSelector.DateAxisRangeSelector();
-        selector.container = document.getElementById("selectordiv");
-        selector.axis = dateAxis;
-
 
     }); // end am4core.ready()
 </script>

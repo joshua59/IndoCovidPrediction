@@ -262,7 +262,7 @@
             // chart.scrollbarX.thumb.minWidth = 50;
             // chart.scrollbarX.startGrip.minWidth = 50;
 
-            dateAxis.start = 0.79;
+            dateAxis.start = 0.95;
             dateAxis.keepSelection = true;
 
             // Add legend

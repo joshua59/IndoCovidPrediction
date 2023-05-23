@@ -105,6 +105,8 @@ class HomeController extends Controller
         }
 
         $data = DataCovid::all();
+        // make it as json
+        $data = json_encode($data);
 
         return view('page.main', compact('updateNeeded', 'data'));
     }

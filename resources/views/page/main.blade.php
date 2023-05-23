@@ -84,7 +84,12 @@
                 </div>
                 <div class="box-body">
                     <div id="selectorDiv">
-
+                        <button id="oneDay" class="btn btn-primary">1 Day</button>
+                        <button id="twoDays" class="btn btn-primary">2 Days</button>
+                        <button id="oneWeek" class="btn btn-primary">1 Week</button>
+                        <button id="twoWeeks" class="btn btn-primary">2 Weeks</button>
+                        <button id="oneMonth" class="btn btn-primary">1 Month</button>
+                        <button id="twoMonths" class="btn btn-primary">2 Months</button>
                     </div>
                     <div id="chartdiv">
 
@@ -161,142 +166,181 @@
 
 <!-- amchart line graph -->
 <script>
-    am4core.ready(function () {
+    function createGraph(noOfPredictions = 60) {
+        am4core.options.autoDispose = true;
 
-        // Themes begin
-        am4core.useTheme(am4themes_animated);
-        // Themes end
+        am4core.ready(function () {
 
-        // Create chart instance
-        var chart = am4core.create("chartdiv", am4charts.XYChart);
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
 
-        // Add data
-        chart.data = [
-            @foreach($data as $d)
-            {
-                "date": "{{$d->date}}",
-                "new_cases": "{{$d->new_cases}}",
+            // Create chart instance
+            var chart = am4core.create("chartdiv", am4charts.XYChart);
 
-                // make different color for is_predicted = 1
-                @if($d->is_predicted == '1')
-                "lineColor": "#fabd61",
-                "legendText": "Predicted"
-                @else
-                "lineColor": "#61defa",
-                "legendText": "Actual"
-                @endif
-                
-            },
-            @endforeach
-        ];
+            // take data sent from controller
+            let data = {!! $data !!};
 
-        console.log(chart.data);
+            // counter for no of predictions
+            let counterOfPredictions = 0;
 
-        // Set input format for the dates
-        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+            // variable to store data that is going to be shown
+            let dataToBeShown = [];
 
-        // Create axes
-        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            // iterate over data, to process which data to be shown
+            for (let i = 0; i < data.length; i++) {
+                if(counterOfPredictions === noOfPredictions) {
+                    break;
+                }
+                if(data[i]['is_predicted'] === 1) {
+                    data[i]['lineColor'] = am4core.color("#fabd61");
+                    data[i]['legendTextReal'] = "Predicted";
+                    counterOfPredictions++;
+                } else {
+                    data[i]['lineColor'] = am4core.color("#61defa");
+                    data[i]['legendTextReal'] = "Actual";
+                }
+                dataToBeShown.push(data[i]);
+            }
 
-        // Create series
-        let series = chart.series.push(new am4charts.LineSeries());
-        series.dataFields.valueY = "new_cases";
-        series.dataFields.dateX = "date";
-        series.tooltipText = "{new_cases}";
-        series.name = "New Cases";
-        series.legendSettings.valueText = "{valueY}";
-        series.strokeWidth = 2;
-        series.minBulletDistance = 15;
-        series.propertyFields.stroke = "lineColor";
-        series.propertyFields.fill = "lineColor";
+            // Add data
+            chart.data = dataToBeShown;
+
+            console.log(chart.data);
+
+            // Set input format for the dates
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.valueY = "new_cases";
+            series.dataFields.dateX = "date";
+            series.tooltipText = "{new_cases}";
+            series.name = "New Cases";
+            series.legendSettings.valueText = "{valueY}";
+            series.strokeWidth = 2;
+            series.minBulletDistance = 15;
+            series.propertyFields.stroke = "lineColor";
+            series.propertyFields.fill = "lineColor";
 
 
-        // Drop-shaped tooltips
-        series.tooltip.background.cornerRadius = 20;
-        series.tooltip.background.strokeOpacity = 0;
-        series.tooltip.pointerOrientation = "vertical";
-        series.tooltip.label.minWidth = 40;
-        series.tooltip.label.minHeight = 40;
-        series.tooltip.label.textAlign = "middle";
-        series.tooltip.label.textValign = "middle";
+            // Drop-shaped tooltips
+            series.tooltip.background.cornerRadius = 20;
+            series.tooltip.background.strokeOpacity = 0;
+            series.tooltip.pointerOrientation = "vertical";
+            series.tooltip.label.minWidth = 40;
+            series.tooltip.label.minHeight = 40;
+            series.tooltip.label.textAlign = "middle";
+            series.tooltip.label.textValign = "middle";
 
-        // Make bullets grow on hover
-        let bullet = series.bullets.push(new am4charts.CircleBullet());
-        bullet.circle.strokeWidth = 2;
-        bullet.circle.radius = 4;
-        bullet.circle.fill = am4core.color("#fff");
-        bullet.propertyFields.fill = "lineColor";
+            // Make bullets grow on hover
+            let bullet = series.bullets.push(new am4charts.CircleBullet());
+            bullet.circle.strokeWidth = 2;
+            bullet.circle.radius = 4;
+            bullet.circle.fill = am4core.color("#fff");
+            bullet.propertyFields.fill = "lineColor";
 
-        let bullethover = bullet.states.create("hover");
-        bullethover.properties.scale = 1.3;
+            let bullethover = bullet.states.create("hover");
+            bullethover.properties.scale = 1.3;
 
-        // Make a panning cursor
-        chart.cursor = new am4charts.XYCursor();
-        chart.cursor.behavior = "panXY";
-        chart.cursor.xAxis = dateAxis;
-        chart.cursor.snapToSeries = series;
+            // Make a panning cursor
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.behavior = "panXY";
+            chart.cursor.xAxis = dateAxis;
+            chart.cursor.snapToSeries = series;
 
-        // Create vertical scrollbar and place it before the value axis
-        chart.scrollbarY = new am4core.Scrollbar();
-        chart.scrollbarY.parent = chart.leftAxesContainer;
-        chart.scrollbarY.toBack();
+            // Create vertical scrollbar and place it before the value axis
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.parent = chart.leftAxesContainer;
+            chart.scrollbarY.toBack();
 
-        // Create a horizontal scrollbar with previe and place it underneath the date axis
-        chart.scrollbarX = new am4charts.XYChartScrollbar();
-        chart.scrollbarX.series.push(series);
-        chart.scrollbarX.parent = chart.bottomAxesContainer;
+            // Create a horizontal scrollbar with previe and place it underneath the date axis
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+            chart.scrollbarX.parent = chart.bottomAxesContainer;
 
-        // chart.scrollbarX.thumb.minWidth = 50;
-        // chart.scrollbarX.startGrip.minWidth = 50;
+            // chart.scrollbarX.thumb.minWidth = 50;
+            // chart.scrollbarX.startGrip.minWidth = 50;
 
-        dateAxis.start = 0.79;
-        dateAxis.keepSelection = true;
+            dateAxis.start = 0.95;
+            dateAxis.keepSelection = true;
 
         // Add legend
         chart.legend = new am4charts.Legend();
         chart.legend.position = "top";
         chart.legend.scrollable = true;
 
-        var hoverState = series.columns.template.states.create("hover");
-        hoverState.properties.fillOpacity = 1;
-        hoverState.properties.strokeOpacity = 1;
-        
-        chart.legend.itemContainers.template.events.on("over", function (event) {
-            processOver(event.target.dataItem.dataContext);
-        })
+            var hoverState = series.columns.template.states.create("hover");
+            hoverState.properties.fillOpacity = 1;
+            hoverState.properties.strokeOpacity = 1;
 
-        chart.legend.itemContainers.template.events.on("out", function (event) {
-            processOut(event.target.dataItem.dataContext);
-        })
-
-        function processOver(hoveredSeries) {
-            hoveredSeries.toFront();
-
-            hoveredSeries.segments.each(function (segment) {
-                segment.setState("hover");
+            chart.legend.itemContainers.template.events.on("over", function (event) {
+                processOver(event.target.dataItem.dataContext);
             })
 
-            chart.series.each(function (series) {
-                if (series != hoveredSeries) {
-                    series.segments.each(function (segment) {
-                        segment.setState("dimmed");
-                    })
-                    series.bulletsContainer.setState("dimmed");
-                }
-            });
-        }
+            chart.legend.itemContainers.template.events.on("out", function (event) {
+                processOut(event.target.dataItem.dataContext);
+            })
 
-        function processOut(hoveredSeries) {
-            chart.series.each(function (series) {
-                series.segments.each(function (segment) {
-                    segment.setState("default");
+            function processOver(hoveredSeries) {
+                hoveredSeries.toFront();
+
+                hoveredSeries.segments.each(function (segment) {
+                    segment.setState("hover");
                 })
-                series.bulletsContainer.setState("default");
-            });
-        }
 
-    }); // end am4core.ready()
+                chart.series.each(function (series) {
+                    if (series != hoveredSeries) {
+                        series.segments.each(function (segment) {
+                            segment.setState("dimmed");
+                        })
+                        series.bulletsContainer.setState("dimmed");
+                    }
+                });
+            }
+
+            function processOut(hoveredSeries) {
+                chart.series.each(function (series) {
+                    series.segments.each(function (segment) {
+                        segment.setState("default");
+                    })
+                    series.bulletsContainer.setState("default");
+                });
+            }
+
+            //add period selector
+            var selector = new am4plugins_rangeSelector.DateAxisRangeSelector();
+            selector.container = document.getElementById("selectordiv");
+            selector.axis = dateAxis;
+
+
+        }); // end am4core.ready()
+    }
+    createGraph();
+
+    // set button onClick
+    document.getElementById("oneDay").onclick = function() {
+        createGraph(1);
+    }
+    document.getElementById("twoDays").onclick = function() {
+        createGraph(2);
+    }
+    document.getElementById("oneWeek").onclick = function() {
+        createGraph(7);
+    }
+    document.getElementById("twoWeeks").onclick = function() {
+        createGraph(14);
+    }
+    document.getElementById("oneMonth").onclick = function() {
+        createGraph(30);
+    }
+    document.getElementById("twoMonths").onclick = function() {
+        createGraph(60);
+    }
 </script>
 
 </body>

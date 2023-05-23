@@ -49,7 +49,7 @@
     <!-- skins -->
     <link href="{{asset('assets/css/skins/_all-skins.css')}}" rel="stylesheet" type="text/css">
 
-    <link rel="stylesheet" href="https://cdn.amcharts.com/lib/3/amcharts.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.amcharts.com/lib/4/amcharts.css" type="text/css">
 
     <style>
         #chartdiv {
@@ -82,6 +82,9 @@
                     <h2 class="box-title">COVID-19 Prediction Graph</h2>
                 </div>
                 <div class="box-body">
+                    <div id="selectorDiv">
+
+                    </div>
                     <div id="chartdiv">
 
                     </div>
@@ -167,10 +170,20 @@
 
         // Add data
         chart.data = [
-                @foreach($data as $d)
+            @foreach($data as $d)
             {
                 "date": "{{$d->date}}",
-                "new_cases": "{{$d->new_cases}}"
+                "new_cases": "{{$d->new_cases}}",
+
+                // make different color for is_predicted = 1
+                @if($d->is_predicted == '1')
+                "lineColor": "#fabd61",
+                "legendText": "Predicted"
+                @else
+                "lineColor": "#61defa",
+                "legendText": "Actual"
+                @endif
+                
             },
             @endforeach
         ];
@@ -189,8 +202,13 @@
         series.dataFields.valueY = "new_cases";
         series.dataFields.dateX = "date";
         series.tooltipText = "{new_cases}";
+        series.name = "New Cases";
+        series.legendSettings.valueText = "{valueY}";
         series.strokeWidth = 2;
         series.minBulletDistance = 15;
+        series.propertyFields.stroke = "lineColor";
+        series.propertyFields.fill = "lineColor";
+
 
         // Drop-shaped tooltips
         series.tooltip.background.cornerRadius = 20;
@@ -206,6 +224,7 @@
         bullet.circle.strokeWidth = 2;
         bullet.circle.radius = 4;
         bullet.circle.fill = am4core.color("#fff");
+        bullet.propertyFields.fill = "lineColor";
 
         let bullethover = bullet.states.create("hover");
         bullethover.properties.scale = 1.3;
@@ -226,11 +245,60 @@
         chart.scrollbarX.series.push(series);
         chart.scrollbarX.parent = chart.bottomAxesContainer;
 
-        chart.scrollbarX.thumb.minWidth = 50;
-        chart.scrollbarX.startGrip.minWidth = 50;
+        // chart.scrollbarX.thumb.minWidth = 50;
+        // chart.scrollbarX.startGrip.minWidth = 50;
 
         dateAxis.start = 0.79;
         dateAxis.keepSelection = true;
+
+        // Add legend
+        chart.legend = new am4charts.Legend();
+        chart.legend.position = "right";
+        chart.legend.scrollable = true;
+
+        var hoverState = series.columns.template.states.create("hover");
+        hoverState.properties.fillOpacity = 1;
+        hoverState.properties.strokeOpacity = 1;
+        
+        chart.legend.itemContainers.template.events.on("over", function (event) {
+            processOver(event.target.dataItem.dataContext);
+        })
+
+        chart.legend.itemContainers.template.events.on("out", function (event) {
+            processOut(event.target.dataItem.dataContext);
+        })
+
+        function processOver(hoveredSeries) {
+            hoveredSeries.toFront();
+
+            hoveredSeries.segments.each(function (segment) {
+                segment.setState("hover");
+            })
+
+            chart.series.each(function (series) {
+                if (series != hoveredSeries) {
+                    series.segments.each(function (segment) {
+                        segment.setState("dimmed");
+                    })
+                    series.bulletsContainer.setState("dimmed");
+                }
+            });
+        }
+
+        function processOut(hoveredSeries) {
+            chart.series.each(function (series) {
+                series.segments.each(function (segment) {
+                    segment.setState("default");
+                })
+                series.bulletsContainer.setState("default");
+            });
+        }
+
+        //add period selector
+        var selector = new am4plugins_rangeSelector.DateAxisRangeSelector();
+        selector.container = document.getElementById("selectordiv");
+        selector.axis = dateAxis;
+
 
     }); // end am4core.ready()
 </script>

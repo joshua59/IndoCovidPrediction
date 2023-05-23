@@ -83,7 +83,12 @@
                 </div>
                 <div class="box-body">
                     <div id="selectorDiv">
-
+                        <button id="oneDay" class="btn btn-primary">1 Day</button>
+                        <button id="twoDays" class="btn btn-primary">2 Days</button>
+                        <button id="oneWeek" class="btn btn-primary">1 Week</button>
+                        <button id="twoWeeks" class="btn btn-primary">2 Weeks</button>
+                        <button id="oneMonth" class="btn btn-primary">1 Month</button>
+                        <button id="twoMonths" class="btn btn-primary">2 Months</button>
                     </div>
                     <div id="chartdiv">
 
@@ -160,10 +165,7 @@
 <!-- amchart line graph -->
 <script>
     function createGraph(noOfPredictions = 60) {
-        // if am4core is shown already, then dispose it
-        if (am4core.isReady) {
-            am4core.disposeAllCharts();
-        }
+        am4core.options.autoDispose = true;
 
         am4core.ready(function () {
 
@@ -317,6 +319,26 @@
         }); // end am4core.ready()
     }
     createGraph();
+
+    // set button onClick
+    document.getElementById("oneDay").onclick = function() {
+        createGraph(1);
+    }
+    document.getElementById("twoDays").onclick = function() {
+        createGraph(2);
+    }
+    document.getElementById("oneWeek").onclick = function() {
+        createGraph(7);
+    }
+    document.getElementById("twoWeeks").onclick = function() {
+        createGraph(14);
+    }
+    document.getElementById("oneMonth").onclick = function() {
+        createGraph(30);
+    }
+    document.getElementById("twoMonths").onclick = function() {
+        createGraph(60);
+    }
 </script>
 
 </body>

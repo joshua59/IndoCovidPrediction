@@ -55,6 +55,32 @@
         #chartdiv {
             width: 100%;
             height: 500px;
+            display: inline-block;
+            
+        }
+        #selectorDiv {
+            text-align: center;
+            width: 60%;
+            height: 50px;
+            display: inline-block;
+        }
+        #datepicker {
+            text-align: center;
+            width: 30%;
+            height: 50px;
+            display: inline-block;
+        }
+        #legend1 {
+            background-color: #61defa;
+            border: none;
+            width: 20px;
+            height: 10px;
+        }
+        #legend2 {
+            background-color: #f7a35c;
+            border: none;
+            width: 20px;
+            height: 10px;
         }
     </style>
 
@@ -84,15 +110,32 @@
                 </div>
                 <div class="box-body">
                     <div id="selectorDiv">
-                        <button id="oneDay" class="btn btn-primary">1 Day</button>
-                        <button id="twoDays" class="btn btn-primary">2 Days</button>
-                        <button id="oneWeek" class="btn btn-primary">1 Week</button>
-                        <button id="twoWeeks" class="btn btn-primary">2 Weeks</button>
-                        <button id="oneMonth" class="btn btn-primary">1 Month</button>
+                        <p>Predict :</p>
+                        <button id="oneDay" class="btn btn-primary">1 Day</button> </span></span></span>
+                        <button id="twoDays" class="btn btn-primary">2 Days</button> </span></span></span>
+                        <button id="oneWeek" class="btn btn-primary">1 Week</button><br> <br>
+                        <button id="twoWeeks" class="btn btn-primary">2 Weeks</button></span></span></span>
+                        <button id="oneMonth" class="btn btn-primary">1 Month</button></span></span></span>
                         <button id="twoMonths" class="btn btn-primary">2 Months</button>
                     </div>
+                    <div id="datepicker">
+                        <label>From :</label>
+                        <input type="date" id="from" name="from" class="form-control" placeholder="From">
+                        <label>To :</label>
+                        <input type="date" id="to" name="to" class="form-control" placeholder="To">
+                    </div>
+                    <br>
                     <div id="chartdiv">
-
+                        
+                    </div>
+                    <!-- Make two legend -->
+                    <div id="legendDiv">
+                        <div id="legendDiv1">
+                            <button id="legend1"></button>Actual cases
+                        </div>
+                        <div id="legendDiv2">
+                            <button id="legend2"></button>Predicted cases
+                        </div>
                     </div>
 
                 </div>
@@ -194,11 +237,11 @@
                 }
                 if(data[i]['is_predicted'] === 1) {
                     data[i]['lineColor'] = am4core.color("#fabd61");
-                    data[i]['legendTextReal'] = "Predicted";
+                    data[i]['legendText'] = "Predicted";
                     counterOfPredictions++;
                 } else {
                     data[i]['lineColor'] = am4core.color("#61defa");
-                    data[i]['legendTextReal'] = "Actual";
+                    data[i]['legendText'] = "Actual";
                 }
                 dataToBeShown.push(data[i]);
             }
@@ -219,8 +262,8 @@
             let series = chart.series.push(new am4charts.LineSeries());
             series.dataFields.valueY = "new_cases";
             series.dataFields.dateX = "date";
-            series.tooltipText = "{new_cases}";
-            series.name = "New Cases";
+            series.tooltipText = "New cases: {new_cases}";
+            series.name = "New cases: ";
             series.legendSettings.valueText = "{valueY}";
             series.strokeWidth = 2;
             series.minBulletDistance = 15;
@@ -242,6 +285,7 @@
             bullet.circle.strokeWidth = 2;
             bullet.circle.radius = 4;
             bullet.circle.fill = am4core.color("#fff");
+            bullet.propertyFields.stroke = "lineColor";
             bullet.propertyFields.fill = "lineColor";
 
             let bullethover = bullet.states.create("hover");
@@ -269,10 +313,10 @@
             dateAxis.start = 0.95;
             dateAxis.keepSelection = true;
 
-        // Add legend
-        chart.legend = new am4charts.Legend();
-        chart.legend.position = "top";
-        chart.legend.scrollable = true;
+            // Add legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.position = "top";
+            chart.legend.scrollable = true;
 
             var hoverState = series.columns.template.states.create("hover");
             hoverState.properties.fillOpacity = 1;

@@ -54,7 +54,7 @@
     <style>
         #chartdiv {
             width: 100%;
-            height: 450px;
+            height: 470px;
             display: inline-block;
 
         }
@@ -93,11 +93,6 @@
 </head>
 
 <body class="hold-transition skin-blue-light sidebar-mini">
-{{--    @foreach ($data as $key => $value)--}}
-{{--        {{ $data[$key]['date'] }}--}}
-{{--        {{ $data[$key]['new_cases'] }}--}}
-{{--    @endforeach--}}
-
 
 <!-- Main content -->
 <div class="container">

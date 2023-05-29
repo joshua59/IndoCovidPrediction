@@ -111,12 +111,12 @@
                 <div class="box-body">
                     <div id="selectorDiv">
                         <p>Predict :</p>
-                        <button id="oneDay" class="btn btn-primary">1 Day</button> </span></span></span>
-                        <button id="twoDays" class="btn btn-primary">2 Days</button> </span></span></span>
+                        <button id="oneDay" class="btn btn-primary">1 Day</button>
+                        <button id="twoDays" class="btn btn-primary">2 Days</button>
                         <button id="oneWeek" class="btn btn-primary">1 Week</button><br> <br>
-                        <button id="twoWeeks" class="btn btn-primary">2 Weeks</button></span></span></span>
-                        <button id="oneMonth" class="btn btn-primary">1 Month</button></span></span></span>
-                        <button id="twoMonths" class="btn btn-primary">2 Months</button>
+                        <button id="twoWeeks" class="btn btn-primary">2 Weeks</button>
+                        <button id="threeWeeks" class="btn btn-primary">3 Weeks</button>
+                        <button id="oneMonth" class="btn btn-primary">1 Month</button>
                     </div>
                     <div id="datepicker">
                         <label>From :</label>
@@ -567,13 +567,13 @@
             clearDatePicker();
             createGraph(14);
         }
+        document.getElementById("threeWeeks").onclick = function() {
+            clearDatePicker();
+            createGraph(21);
+        }
         document.getElementById("oneMonth").onclick = function() {
             clearDatePicker();
             createGraph(30);
-        }
-        document.getElementById("twoMonths").onclick = function() {
-            clearDatePicker();
-            createGraph(60);
         }
 
         datePickerListener();
@@ -636,7 +636,7 @@
         trainingData.push(temp);
 
         console.log("Predicting...")
-        for (let count_prediction = 1; count_prediction <= 60; count_prediction++) {
+        for (let count_prediction = 1; count_prediction <= 30; count_prediction++) {
             temp = [];
             predictData = [];
 

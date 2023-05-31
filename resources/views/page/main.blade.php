@@ -143,6 +143,9 @@
             </div>
             <!-- /.box -->
         </div>
+        <a href="{{ route('train') }}" id="train" class="btn btn-primary">Train</a>
+        <p>Mantap kali {{ $updateNeeded }}</p>
+        <p>anjay</p>
     </div>
     <!-- /.row -->
 
@@ -209,7 +212,7 @@
     let dateFrom = "";
     let dateTo = "";
 
-    function createGraph(noOfPredictions = 60) {
+    function createGraph(noOfPredictions = 30) {
         am4core.options.autoDispose = true;
 
         am4core.ready(function () {

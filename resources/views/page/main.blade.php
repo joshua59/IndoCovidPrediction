@@ -13,10 +13,8 @@
     <title>Indonesia COVID-19 Prediction</title>
 
     <!-- Bootstrap 4.0-->
-    <link href="{{asset('assets/plugins/custom/fullcalendar/fullcalendar.bundle.css')}}" rel="stylesheet"
-          type="text/css"/>
-    <link href="{{asset('assets/vendor_components/bootstrap/dist/css/bootstrap.css')}}" rel="stylesheet"
-          type="text/css">
+    <link href="{{asset('assets/plugins/custom/fullcalendar/fullcalendar.bundle.css')}}" rel="stylesheet"type="text/css"/>
+    <link href="{{asset('assets/vendor_components/bootstrap/dist/css/bootstrap.css')}}" rel="stylesheet"type="text/css">
 
     <!--amcharts -->
     <link href="{{asset('assets/vendor_components/amcharts_3.21.12.free/amcharts/plugins/export/export.css')}}"
@@ -54,7 +52,7 @@
     <style>
         #chartdiv {
             width: 100%;
-            height: 470px;
+            height: 450px;
             display: inline-block;
 
         }

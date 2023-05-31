@@ -143,9 +143,6 @@
             </div>
             <!-- /.box -->
         </div>
-        <a href="{{ route('train') }}" id="train" class="btn btn-primary">Train</a>
-        <p>Mantap kali {{ $updateNeeded }}</p>
-        <p>anjay</p>
     </div>
     <!-- /.row -->
 

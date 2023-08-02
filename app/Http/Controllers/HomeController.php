@@ -90,7 +90,7 @@ class HomeController extends Controller
     public function index()
     {
         $dataUpdateHistory = DataUpdateHistory::orderBy('created_at', 'desc')->first();
-
+        $date = null;
         $updateNeeded = "false";
         // check if it's already 7 days since the last update
         if ($dataUpdateHistory) {
@@ -102,13 +102,15 @@ class HomeController extends Controller
             if ($diff >= 7) {
                 $updateNeeded = "true";
             }
+
+            $date = strtotime($dataUpdateHistory->created_at);
         }
 
         $data = DataCovid::all();
         // make it as json
         $data = json_encode($data);
 
-        return view('page.main', compact('updateNeeded', 'data'));
+        return view('page.main', compact('updateNeeded', 'data', 'date'));
     }
 
     public function addDataUpdateHistory()

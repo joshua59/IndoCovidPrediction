@@ -128,6 +128,12 @@
                     <div id="chartdiv">
 
                     </div>
+                    <br/>
+                    <div>
+                        <p>Data last updated on:
+                            <b>{{ date("j F Y", $date) }}</b>
+                        </p>
+                    </div>
                     <!-- Make two legend -->
                     <div id="legendDiv">
                         <div id="legendDiv1">
@@ -677,10 +683,10 @@
         });
     }
 
-    async function doEverything() {
+    async function doEverything(forceUpdate = false) {
         let updateNeded = {{$updateNeeded}};
 
-        if (updateNeded) {
+        if (updateNeded || forceUpdate) {
             const myModel = await tf.loadLayersModel('{{ asset('assets/model/model.json') }}');
             console.log(myModel.summary());
             // return model;
